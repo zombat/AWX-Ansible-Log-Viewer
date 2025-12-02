@@ -74,7 +74,7 @@ def main():
     kb = create_key_bindings(log_buffer, manager, update_buffer)
 
     # Create UI components
-    status_bar = create_status_bar(log_buffer, args.filename)
+    status_bar = create_status_bar(log_buffer, args.filename, manager)
     bottom_bar = create_bottom_bar()
 
     root_container = HSplit([

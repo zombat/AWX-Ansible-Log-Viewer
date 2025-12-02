@@ -7,6 +7,7 @@ style = Style.from_dict({
     'bottom-bar': 'bg:#ffffff #000000', 
     'key': 'bg:#ffffff #000000 bold',
     'desc': 'bg:#ffffff #000000',
+    'filter': 'bg:#ffff00 #000000 bold',
     
     'log.header': '#00afff bold',
     'log.error': '#ff0000 bold',
@@ -16,15 +17,38 @@ style = Style.from_dict({
     'log.normal': '#cccccc',
 })
 
-def create_status_bar(log_buffer, filename):
-    """Create the status bar showing file info and cursor position."""
+def create_status_bar(log_buffer, filename, manager):
+    """Create the status bar showing file info, cursor position, and filters."""
     def get_status_bar_text():
         row = log_buffer.document.cursor_position_row + 1
         total = log_buffer.document.line_count
-        return [
+        
+        parts = [
             ('class:status', f"  AWX Viewer 1.0  File: {filename}  "),
-            ('class:status', f"Line: {row}/{total}".rjust(40))
         ]
+        
+        # Show active filters
+        filters = []
+        if manager.filter_hosts:
+            host_list = ', '.join(sorted(manager.filter_hosts)[:3])
+            if len(manager.filter_hosts) > 3:
+                host_list += f' +{len(manager.filter_hosts)-3}'
+            filters.append(f"Hosts:[{host_list}]")
+        if manager.filter_tasks:
+            task_list = ', '.join(sorted(manager.filter_tasks)[:2])
+            if len(manager.filter_tasks) > 2:
+                task_list += f' +{len(manager.filter_tasks)-2}'
+            filters.append(f"Tasks:[{task_list}]")
+        if manager.filter_statuses:
+            status_list = ', '.join(sorted(manager.filter_statuses))
+            filters.append(f"Status:[{status_list}]")
+        
+        if filters:
+            parts.append(('class:filter', f" {' | '.join(filters)} "))
+        
+        parts.append(('class:status', f"Line: {row}/{total}".rjust(20)))
+        
+        return parts
     
     return Window(
         content=FormattedTextControl(get_status_bar_text),
@@ -40,6 +64,8 @@ def create_bottom_bar():
             ('class:key', '^C'), ('class:desc', ' Copy/Exit '),
             ('class:key', 'W/S'), ('class:desc', ' Up/Dn '),
             ('class:key', 'A/D'), ('class:desc', ' Collapse/Expand '),
+            ('class:key', 'F'), ('class:desc', ' Filter '),
+            ('class:key', '^R'), ('class:desc', ' Clear Filters '),
         ]
     
     return Window(
