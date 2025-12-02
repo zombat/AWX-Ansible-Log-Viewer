@@ -1,0 +1,582 @@
+PLAY [Install and configure Apache on production servers] **********************
+
+TASK [Gathering Facts] *********************************************************
+ok: [prod-web-01.internal]
+ok: [prod-web-02.internal]
+ok: [prod-web-03.internal]
+ok: [prod-web-04.internal]
+ok: [prod-web-05.internal]
+ok: [prod-web-06.internal]
+ok: [prod-web-07.internal]
+ok: [prod-web-08.internal]
+ok: [prod-web-09.internal]
+ok: [prod-web-10.internal]
+ok: [prod-web-11.internal]
+ok: [prod-web-12.internal]
+FAILED - UNREACHABLE! [prod-web-13.internal] => {
+    "changed": false,
+    "msg": "Failed to connect to the host via ssh: Network is unreachable",
+    "unreachable": true
+}
+ok: [prod-web-14.internal]
+ok: [prod-web-15.internal]
+ok: [prod-web-16.internal]
+ok: [prod-web-17.internal]
+ok: [prod-web-18.internal]
+ok: [prod-web-19.internal]
+ok: [prod-web-20.internal]
+ok: [prod-web-21.internal]
+ok: [prod-web-22.internal]
+FAILED - UNREACHABLE! [prod-web-23.internal] => {
+    "changed": false,
+    "msg": "Failed to connect to the host via ssh: Connection refused",
+    "unreachable": true
+}
+ok: [prod-web-24.internal]
+ok: [prod-web-25.internal]
+
+TASK [Check if system is up to date] *******************************************
+ok: [prod-web-01.internal]
+ok: [prod-web-02.internal]
+ok: [prod-web-03.internal]
+ok: [prod-web-04.internal]
+ok: [prod-web-05.internal]
+ok: [prod-web-06.internal]
+ok: [prod-web-07.internal]
+ok: [prod-web-08.internal]
+ok: [prod-web-09.internal]
+ok: [prod-web-10.internal]
+changed: [prod-web-11.internal] => {
+    "changed": true,
+    "msg": "13 packages marked for update, 2 security updates"
+}
+changed: [prod-web-12.internal] => {
+    "changed": true,
+    "msg": "8 packages marked for update, 1 security update"
+}
+ok: [prod-web-14.internal]
+changed: [prod-web-15.internal] => {
+    "changed": true,
+    "msg": "22 packages marked for update, 4 security updates"
+}
+changed: [prod-web-16.internal] => {
+    "changed": true,
+    "msg": "5 packages marked for update, 0 security updates"
+}
+changed: [prod-web-17.internal] => {
+    "changed": true,
+    "msg": "18 packages marked for update, 3 security updates"
+}
+ok: [prod-web-18.internal]
+changed: [prod-web-19.internal] => {
+    "changed": true,
+    "msg": "11 packages marked for update, 2 security updates"
+}
+changed: [prod-web-20.internal] => {
+    "changed": true,
+    "msg": "9 packages marked for update, 1 security update"
+}
+ok: [prod-web-21.internal]
+ok: [prod-web-22.internal]
+changed: [prod-web-24.internal] => {
+    "changed": true,
+    "msg": "15 packages marked for update, 2 security updates"
+}
+ok: [prod-web-25.internal]
+
+TASK [Update system packages] **************************************************
+skipping: [prod-web-01.internal] => {
+    "changed": false,
+    "skip_reason": "Conditional result was False"
+}
+skipping: [prod-web-02.internal] => {
+    "changed": false,
+    "skip_reason": "Conditional result was False"
+}
+skipping: [prod-web-03.internal] => {
+    "changed": false,
+    "skip_reason": "Conditional result was False"
+}
+skipping: [prod-web-04.internal] => {
+    "changed": false,
+    "skip_reason": "Conditional result was False"
+}
+skipping: [prod-web-05.internal] => {
+    "changed": false,
+    "skip_reason": "Conditional result was False"
+}
+skipping: [prod-web-06.internal] => {
+    "changed": false,
+    "skip_reason": "Conditional result was False"
+}
+skipping: [prod-web-07.internal] => {
+    "changed": false,
+    "skip_reason": "Conditional result was False"
+}
+skipping: [prod-web-08.internal] => {
+    "changed": false,
+    "skip_reason": "Conditional result was False"
+}
+skipping: [prod-web-09.internal] => {
+    "changed": false,
+    "skip_reason": "Conditional result was False"
+}
+skipping: [prod-web-10.internal] => {
+    "changed": false,
+    "skip_reason": "Conditional result was False"
+}
+changed: [prod-web-11.internal] => {
+    "changed": true,
+    "msg": "13 packages updated successfully"
+}
+changed: [prod-web-12.internal] => {
+    "changed": true,
+    "msg": "8 packages updated successfully"
+}
+skipping: [prod-web-14.internal] => {
+    "changed": false,
+    "skip_reason": "Conditional result was False"
+}
+changed: [prod-web-15.internal] => {
+    "changed": true,
+    "msg": "22 packages updated successfully"
+}
+changed: [prod-web-16.internal] => {
+    "changed": true,
+    "msg": "5 packages updated successfully"
+}
+changed: [prod-web-17.internal] => {
+    "changed": true,
+    "msg": "18 packages updated successfully"
+}
+skipping: [prod-web-18.internal] => {
+    "changed": false,
+    "skip_reason": "Conditional result was False"
+}
+changed: [prod-web-19.internal] => {
+    "changed": true,
+    "msg": "11 packages updated successfully"
+}
+changed: [prod-web-20.internal] => {
+    "changed": true,
+    "msg": "9 packages updated successfully"
+}
+skipping: [prod-web-21.internal] => {
+    "changed": false,
+    "skip_reason": "Conditional result was False"
+}
+skipping: [prod-web-22.internal] => {
+    "changed": false,
+    "skip_reason": "Conditional result was False"
+}
+changed: [prod-web-24.internal] => {
+    "changed": true,
+    "msg": "15 packages updated successfully"
+}
+skipping: [prod-web-25.internal] => {
+    "changed": false,
+    "skip_reason": "Conditional result was False"
+}
+
+TASK [Check if Apache is already installed] ***********************************
+ok: [prod-web-01.internal] => {
+    "changed": false,
+    "msg": "Apache not installed"
+}
+ok: [prod-web-02.internal] => {
+    "changed": false,
+    "msg": "Apache not installed"
+}
+ok: [prod-web-03.internal] => {
+    "changed": false,
+    "msg": "Apache not installed"
+}
+ok: [prod-web-04.internal] => {
+    "changed": false,
+    "msg": "Apache not installed"
+}
+ok: [prod-web-05.internal] => {
+    "changed": false,
+    "msg": "Apache is already installed and running"
+}
+ok: [prod-web-06.internal] => {
+    "changed": false,
+    "msg": "Apache is already installed and running"
+}
+ok: [prod-web-07.internal] => {
+    "changed": false,
+    "msg": "Apache not installed"
+}
+ok: [prod-web-08.internal] => {
+    "changed": false,
+    "msg": "Apache is already installed and running"
+}
+ok: [prod-web-09.internal] => {
+    "changed": false,
+    "msg": "Apache not installed"
+}
+ok: [prod-web-10.internal] => {
+    "changed": false,
+    "msg": "Apache not installed"
+}
+ok: [prod-web-11.internal] => {
+    "changed": false,
+    "msg": "Apache not installed"
+}
+ok: [prod-web-12.internal] => {
+    "changed": false,
+    "msg": "Apache is already installed and running"
+}
+ok: [prod-web-14.internal] => {
+    "changed": false,
+    "msg": "Apache not installed"
+}
+ok: [prod-web-15.internal] => {
+    "changed": false,
+    "msg": "Apache is already installed and running"
+}
+ok: [prod-web-16.internal] => {
+    "changed": false,
+    "msg": "Apache not installed"
+}
+ok: [prod-web-17.internal] => {
+    "changed": false,
+    "msg": "Apache not installed"
+}
+ok: [prod-web-18.internal] => {
+    "changed": false,
+    "msg": "Apache not installed"
+}
+ok: [prod-web-19.internal] => {
+    "changed": false,
+    "msg": "Apache not installed"
+}
+ok: [prod-web-20.internal] => {
+    "changed": false,
+    "msg": "Apache not installed"
+}
+ok: [prod-web-21.internal] => {
+    "changed": false,
+    "msg": "Apache not installed"
+}
+ok: [prod-web-22.internal] => {
+    "changed": false,
+    "msg": "Apache not installed"
+}
+ok: [prod-web-24.internal] => {
+    "changed": false,
+    "msg": "Apache not installed"
+}
+ok: [prod-web-25.internal] => {
+    "changed": false,
+    "msg": "Apache is already installed and running"
+}
+
+TASK [Install Apache and dependencies] *****************************************
+skipping: [prod-web-01.internal] => {
+    "changed": false,
+    "skip_reason": "Conditional result was False"
+}
+skipping: [prod-web-02.internal] => {
+    "changed": false,
+    "skip_reason": "Conditional result was False"
+}
+skipping: [prod-web-03.internal] => {
+    "changed": false,
+    "skip_reason": "Conditional result was False"
+}
+skipping: [prod-web-04.internal] => {
+    "changed": false,
+    "skip_reason": "Conditional result was False"
+}
+skipping: [prod-web-05.internal] => {
+    "changed": false,
+    "skip_reason": "Conditional result was False"
+}
+skipping: [prod-web-06.internal] => {
+    "changed": false,
+    "skip_reason": "Conditional result was False"
+}
+changed: [prod-web-07.internal] => {
+    "changed": true,
+    "msg": "Apache installed successfully"
+}
+skipping: [prod-web-08.internal] => {
+    "changed": false,
+    "skip_reason": "Conditional result was False"
+}
+changed: [prod-web-09.internal] => {
+    "changed": true,
+    "msg": "Apache installed successfully"
+}
+changed: [prod-web-10.internal] => {
+    "changed": true,
+    "msg": "Apache installed successfully"
+}
+changed: [prod-web-11.internal] => {
+    "changed": true,
+    "msg": "Apache installed successfully"
+}
+skipping: [prod-web-12.internal] => {
+    "changed": false,
+    "skip_reason": "Conditional result was False"
+}
+changed: [prod-web-14.internal] => {
+    "changed": true,
+    "msg": "Apache installed successfully"
+}
+skipping: [prod-web-15.internal] => {
+    "changed": false,
+    "skip_reason": "Conditional result was False"
+}
+changed: [prod-web-16.internal] => {
+    "changed": true,
+    "msg": "Apache installed successfully"
+}
+changed: [prod-web-17.internal] => {
+    "changed": true,
+    "msg": "Apache installed successfully"
+}
+changed: [prod-web-18.internal] => {
+    "changed": true,
+    "msg": "Apache installed successfully"
+}
+changed: [prod-web-19.internal] => {
+    "changed": true,
+    "msg": "Apache installed successfully"
+}
+changed: [prod-web-20.internal] => {
+    "changed": true,
+    "msg": "Apache installed successfully"
+}
+changed: [prod-web-21.internal] => {
+    "changed": true,
+    "msg": "Apache installed successfully"
+}
+changed: [prod-web-22.internal] => {
+    "changed": true,
+    "msg": "Apache installed successfully"
+}
+changed: [prod-web-24.internal] => {
+    "changed": true,
+    "msg": "Apache installed successfully"
+}
+skipping: [prod-web-25.internal] => {
+    "changed": false,
+    "skip_reason": "Conditional result was False"
+}
+
+TASK [Configure Apache virtual hosts] *****************************************
+changed: [prod-web-01.internal] => {
+    "changed": true,
+    "msg": "Virtual host configuration created"
+}
+changed: [prod-web-02.internal] => {
+    "changed": true,
+    "msg": "Virtual host configuration created"
+}
+changed: [prod-web-03.internal] => {
+    "changed": true,
+    "msg": "Virtual host configuration created"
+}
+changed: [prod-web-04.internal] => {
+    "changed": true,
+    "msg": "Virtual host configuration created"
+}
+ok: [prod-web-05.internal] => {
+    "changed": false,
+    "msg": "Virtual host configuration already exists"
+}
+ok: [prod-web-06.internal] => {
+    "changed": false,
+    "msg": "Virtual host configuration already exists"
+}
+changed: [prod-web-07.internal] => {
+    "changed": true,
+    "msg": "Virtual host configuration created"
+}
+ok: [prod-web-08.internal] => {
+    "changed": false,
+    "msg": "Virtual host configuration already exists"
+}
+changed: [prod-web-09.internal] => {
+    "changed": true,
+    "msg": "Virtual host configuration created"
+}
+changed: [prod-web-10.internal] => {
+    "changed": true,
+    "msg": "Virtual host configuration created"
+}
+changed: [prod-web-11.internal] => {
+    "changed": true,
+    "msg": "Virtual host configuration created"
+}
+ok: [prod-web-12.internal] => {
+    "changed": false,
+    "msg": "Virtual host configuration already exists"
+}
+changed: [prod-web-14.internal] => {
+    "changed": true,
+    "msg": "Virtual host configuration created"
+}
+ok: [prod-web-15.internal] => {
+    "changed": false,
+    "msg": "Virtual host configuration already exists"
+}
+changed: [prod-web-16.internal] => {
+    "changed": true,
+    "msg": "Virtual host configuration created"
+}
+changed: [prod-web-17.internal] => {
+    "changed": true,
+    "msg": "Virtual host configuration created"
+}
+changed: [prod-web-18.internal] => {
+    "changed": true,
+    "msg": "Virtual host configuration created"
+}
+changed: [prod-web-19.internal] => {
+    "changed": true,
+    "msg": "Virtual host configuration created"
+}
+changed: [prod-web-20.internal] => {
+    "changed": true,
+    "msg": "Virtual host configuration created"
+}
+changed: [prod-web-21.internal] => {
+    "changed": true,
+    "msg": "Virtual host configuration created"
+}
+changed: [prod-web-22.internal] => {
+    "changed": true,
+    "msg": "Virtual host configuration created"
+}
+changed: [prod-web-24.internal] => {
+    "changed": true,
+    "msg": "Virtual host configuration created"
+}
+ok: [prod-web-25.internal] => {
+    "changed": false,
+    "msg": "Virtual host configuration already exists"
+}
+
+TASK [Enable Apache service and set to autostart] ******************************
+changed: [prod-web-01.internal] => {
+    "changed": true,
+    "msg": "Service enabled and started"
+}
+changed: [prod-web-02.internal] => {
+    "changed": true,
+    "msg": "Service enabled and started"
+}
+changed: [prod-web-03.internal] => {
+    "changed": true,
+    "msg": "Service enabled and started"
+}
+changed: [prod-web-04.internal] => {
+    "changed": true,
+    "msg": "Service enabled and started"
+}
+ok: [prod-web-05.internal] => {
+    "changed": false,
+    "msg": "Service is already running"
+}
+ok: [prod-web-06.internal] => {
+    "changed": false,
+    "msg": "Service is already running"
+}
+changed: [prod-web-07.internal] => {
+    "changed": true,
+    "msg": "Service enabled and started"
+}
+ok: [prod-web-08.internal] => {
+    "changed": false,
+    "msg": "Service is already running"
+}
+changed: [prod-web-09.internal] => {
+    "changed": true,
+    "msg": "Service enabled and started"
+}
+changed: [prod-web-10.internal] => {
+    "changed": true,
+    "msg": "Service enabled and started"
+}
+changed: [prod-web-11.internal] => {
+    "changed": true,
+    "msg": "Service enabled and started"
+}
+ok: [prod-web-12.internal] => {
+    "changed": false,
+    "msg": "Service is already running"
+}
+changed: [prod-web-14.internal] => {
+    "changed": true,
+    "msg": "Service enabled and started"
+}
+ok: [prod-web-15.internal] => {
+    "changed": false,
+    "msg": "Service is already running"
+}
+changed: [prod-web-16.internal] => {
+    "changed": true,
+    "msg": "Service enabled and started"
+}
+changed: [prod-web-17.internal] => {
+    "changed": true,
+    "msg": "Service enabled and started"
+}
+changed: [prod-web-18.internal] => {
+    "changed": true,
+    "msg": "Service enabled and started"
+}
+changed: [prod-web-19.internal] => {
+    "changed": true,
+    "msg": "Service enabled and started"
+}
+changed: [prod-web-20.internal] => {
+    "changed": true,
+    "msg": "Service enabled and started"
+}
+changed: [prod-web-21.internal] => {
+    "changed": true,
+    "msg": "Service enabled and started"
+}
+changed: [prod-web-22.internal] => {
+    "changed": true,
+    "msg": "Service enabled and started"
+}
+changed: [prod-web-24.internal] => {
+    "changed": true,
+    "msg": "Service enabled and started"
+}
+ok: [prod-web-25.internal] => {
+    "changed": false,
+    "msg": "Service is already running"
+}
+
+PLAY RECAP ******************************************************************************
+prod-web-01.internal               : ok=6    changed=3    unreachable=0    failed=0    skipped=0    
+prod-web-02.internal               : ok=5    changed=2    unreachable=0    failed=0    skipped=1    
+prod-web-03.internal               : ok=5    changed=2    unreachable=0    failed=0    skipped=1    
+prod-web-04.internal               : ok=5    changed=2    unreachable=0    failed=0    skipped=1    
+prod-web-05.internal               : ok=8    changed=0    unreachable=0    failed=0    skipped=0    
+prod-web-06.internal               : ok=8    changed=0    unreachable=0    failed=0    skipped=0    
+prod-web-07.internal               : ok=6    changed=3    unreachable=0    failed=0    skipped=0    
+prod-web-08.internal               : ok=8    changed=0    unreachable=0    failed=0    skipped=0    
+prod-web-09.internal               : ok=5    changed=3    unreachable=0    failed=0    skipped=1    
+prod-web-10.internal               : ok=5    changed=3    unreachable=0    failed=0    skipped=1    
+prod-web-11.internal               : ok=5    changed=3    unreachable=0    failed=0    skipped=1    
+prod-web-12.internal               : ok=7    changed=1    unreachable=0    failed=0    skipped=1    
+prod-web-13.internal               : ok=0    changed=0    unreachable=1    failed=0    skipped=0    
+prod-web-14.internal               : ok=5    changed=3    unreachable=0    failed=0    skipped=1    
+prod-web-15.internal               : ok=7    changed=1    unreachable=0    failed=0    skipped=1    
+prod-web-16.internal               : ok=5    changed=3    unreachable=0    failed=0    skipped=1    
+prod-web-17.internal               : ok=5    changed=3    unreachable=0    failed=0    skipped=1    
+prod-web-18.internal               : ok=5    changed=3    unreachable=0    failed=0    skipped=1    
+prod-web-19.internal               : ok=5    changed=3    unreachable=0    failed=0    skipped=1    
+prod-web-20.internal               : ok=5    changed=3    unreachable=0    failed=0    skipped=1    
+prod-web-21.internal               : ok=5    changed=3    unreachable=0    failed=0    skipped=1    
+prod-web-22.internal               : ok=5    changed=3    unreachable=0    failed=0    skipped=1    
+prod-web-23.internal               : ok=0    changed=0    unreachable=1    failed=0    skipped=0    
+prod-web-24.internal               : ok=5    changed=3    unreachable=0    failed=0    skipped=1    
+prod-web-25.internal               : ok=8    changed=0    unreachable=0    failed=0    skipped=0
