@@ -25,6 +25,7 @@ class LogManager:
     def __init__(self, content):
         self.sections = []
         self.line_map = [] # Maps rendered line index to Section object
+        self.entry_map = [] # Maps rendered line index to LogEntry (or None for headers)
         self.all_hosts = set()
         self.all_tasks = set()
         self.all_statuses = set()
@@ -183,6 +184,7 @@ class LogManager:
         """
         rendered_lines = []
         self.line_map = []
+        self.entry_map = []
         
         for section in self.sections:
             if section.header is None:
@@ -192,6 +194,7 @@ class LogManager:
                         if self._matches_filters(entry, section):
                             rendered_lines.append(entry.line)
                             self.line_map.append(section)
+                            self.entry_map.append(entry)
             else:
                 # Check if section should be shown based on task filter
                 if self.filter_tasks and section.task_name not in self.filter_tasks:
@@ -209,12 +212,14 @@ class LogManager:
                     
                     rendered_lines.append(header_text)
                     self.line_map.append(section)
+                    self.entry_map.append(None)
                     
                     # Body lines (only if not collapsed)
                     if not section.collapsed:
                         for entry in filtered_body:
                             rendered_lines.append(entry.line)
                             self.line_map.append(section)
+                            self.entry_map.append(entry)
                         
         return '\n'.join(rendered_lines)
 
@@ -242,3 +247,21 @@ class LogManager:
             new_cursor_idx = 0
             
         return new_text, new_cursor_idx
+
+    def find_next_error(self, current_line_idx):
+        """Find the next rendered line with status failed or unreachable.
+        Returns the line index, or None if not found."""
+        for idx in range(current_line_idx + 1, len(self.entry_map)):
+            entry = self.entry_map[idx]
+            if entry and entry.status in ('failed', 'unreachable'):
+                return idx
+        return None
+
+    def find_previous_error(self, current_line_idx):
+        """Find the previous rendered line with status failed or unreachable.
+        Returns the line index, or None if not found."""
+        for idx in range(current_line_idx - 1, -1, -1):
+            entry = self.entry_map[idx]
+            if entry and entry.status in ('failed', 'unreachable'):
+                return idx
+        return None

@@ -60,11 +60,13 @@ def create_bottom_bar():
     """Create the bottom bar with key binding help."""
     def get_bottom_bar():
         return [
-            ('class:key', '^X'), ('class:desc', ' Exit '),
+            ('class:key', 'Q'), ('class:desc', ' Exit '),
             ('class:key', '^C'), ('class:desc', ' Copy/Exit '),
             ('class:key', 'W/S'), ('class:desc', ' Up/Dn '),
             ('class:key', 'A/D'), ('class:desc', ' Collapse/Expand '),
             ('class:key', 'F'), ('class:desc', ' Filter '),
+            ('class:key', 'N'), ('class:desc', ' Next Err '),
+            ('class:key', 'P'), ('class:desc', ' Prev Err '),
             ('class:key', '^R'), ('class:desc', ' Clear Filters '),
         ]
     

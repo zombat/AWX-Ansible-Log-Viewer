@@ -32,6 +32,11 @@ def create_key_bindings(log_buffer, manager, update_buffer_callback):
     def _(event):
         "Quit application."
         event.app.exit()
+    
+    @kb.add('q')
+    def _(event):
+        "Quit application with confirmation."
+        show_quit_confirmation(event.app, original_kb=kb)
 
     # Navigation
     @kb.add('w')
@@ -88,6 +93,26 @@ def create_key_bindings(log_buffer, manager, update_buffer_callback):
     def _(event):
         "Open filter dialog"
         show_filter_dialog(event.app, manager, log_buffer, update_buffer_callback)
+
+    @kb.add('n')
+    def _(event):
+        "Jump to next error (failed/unreachable)"
+        current_line = log_buffer.document.cursor_position_row
+        next_error_line = manager.find_next_error(current_line)
+        if next_error_line is not None:
+            new_cursor_pos = log_buffer.document.translate_row_col_to_index(next_error_line, 0)
+            log_buffer.cursor_position = new_cursor_pos
+            event.app.invalidate()
+
+    @kb.add('p')
+    def _(event):
+        "Jump to previous error (failed/unreachable)"
+        current_line = log_buffer.document.cursor_position_row
+        prev_error_line = manager.find_previous_error(current_line)
+        if prev_error_line is not None:
+            new_cursor_pos = log_buffer.document.translate_row_col_to_index(prev_error_line, 0)
+            log_buffer.cursor_position = new_cursor_pos
+            event.app.invalidate()
 
     @kb.add('c-r')
     def _(event):
@@ -241,6 +266,7 @@ def show_filter_dialog(app, manager, log_buffer, update_buffer_callback):
         app.invalidate()
     
     @filter_kb.add('escape')
+    @filter_kb.add('c-x')
     def _(event):
         # Cancel without applying
         app.layout = original_layout
@@ -264,3 +290,62 @@ def show_filter_dialog(app, manager, log_buffer, update_buffer_callback):
     # Replace layout and key bindings
     app.layout = Layout(dialog_container)
     app.key_bindings = filter_kb
+
+def show_quit_confirmation(app, original_kb):
+    """Show a confirmation dialog before quitting."""
+    from prompt_toolkit.layout.controls import FormattedTextControl
+    from prompt_toolkit.layout.containers import Window, HSplit, VSplit
+    from prompt_toolkit.layout.layout import Layout
+    from prompt_toolkit.key_binding import KeyBindings
+    
+    # Store original layout and key bindings
+    original_layout = app.layout
+    
+    def get_confirm_text():
+        return (
+            "\n"
+            "  Are you sure you want to quit?\n"
+            "\n"
+            "  Press Y to quit, N or ESC to cancel\n"
+        )
+    
+    # Create confirmation dialog key bindings
+    confirm_kb = KeyBindings()
+    
+    @confirm_kb.add('y')
+    @confirm_kb.add('Y')
+    def _(event):
+        event.app.exit()
+    
+    @confirm_kb.add('n')
+    @confirm_kb.add('N')
+    @confirm_kb.add('escape')
+    def _(event):
+        # Cancel - restore original layout and key bindings
+        app.layout = original_layout
+        app.key_bindings = original_kb
+        app.invalidate()
+    
+    # Create confirmation dialog layout
+    confirm_control = FormattedTextControl(text=get_confirm_text)
+    confirm_window = Window(content=confirm_control, height=6)
+    
+    dialog_container = HSplit([
+        Window(height=10),  # Top spacer
+        VSplit([
+            Window(width=20),  # Left spacer
+            Window(content=FormattedTextControl(text=lambda: "=" * 50), height=1),
+        ]),
+        VSplit([
+            Window(width=20),  # Left spacer
+            confirm_window,
+        ]),
+        VSplit([
+            Window(width=20),  # Left spacer
+            Window(content=FormattedTextControl(text=lambda: "=" * 50), height=1),
+        ]),
+    ])
+    
+    # Replace layout and key bindings
+    app.layout = Layout(dialog_container)
+    app.key_bindings = confirm_kb
