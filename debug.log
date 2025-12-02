@@ -1,1 +1,13 @@
-2025-12-02 16:21:59,503 - Using selector: EpollSelector
+2025-12-02 16:35:06,425 - Using selector: EpollSelector
+2025-12-02 16:35:12,005 - update_buffer called with cursor_idx=0, text length=1328
+2025-12-02 16:35:12,005 - Document updated, line_count=24
+2025-12-02 16:35:12,005 - Cursor position calculated: 0
+2025-12-02 16:35:12,005 - Buffer updated successfully: 24 lines, cursor at line 0
+2025-12-02 16:35:18,949 - Expand requested at line 4
+2025-12-02 16:35:18,949 - toggle_section returned: <class 'tuple'> = (3, 1328)
+2025-12-02 16:35:18,949 - Calling update_buffer...
+2025-12-02 16:35:18,949 - update_buffer called with cursor_idx=3, text length=1328
+2025-12-02 16:35:18,950 - Document updated, line_count=24
+2025-12-02 16:35:18,950 - Cursor position calculated: 135
+2025-12-02 16:35:18,950 - Buffer updated successfully: 24 lines, cursor at line 3
+2025-12-02 16:35:18,950 - Buffer updated and invalidated, new line count: 24

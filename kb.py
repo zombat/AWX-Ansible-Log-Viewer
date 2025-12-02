@@ -1,8 +1,13 @@
 import base64
 import logging
 from prompt_toolkit.key_binding import KeyBindings
+from prompt_toolkit.buffer import Buffer
+from prompt_toolkit.document import Document
+from prompt_toolkit.layout.controls import BufferControl, FormattedTextControl
+from prompt_toolkit.layout.containers import Window, HSplit, VSplit
+from prompt_toolkit.layout.layout import Layout
 
-def create_key_bindings(log_buffer, manager, update_buffer_callback):
+def create_key_bindings(log_buffer, manager, update_buffer_callback, source_filename=None):
     """Create and configure all key bindings for the application."""
     kb = KeyBindings()
 
@@ -93,6 +98,12 @@ def create_key_bindings(log_buffer, manager, update_buffer_callback):
     def _(event):
         "Open filter dialog"
         show_filter_dialog(event.app, manager, log_buffer, update_buffer_callback)
+
+    @kb.add('S')
+    @kb.add('c-s')
+    def _(event):
+        "Save filtered view"
+        show_save_dialog(event.app, log_buffer, source_filename)
 
     @kb.add('n')
     def _(event):
@@ -349,3 +360,77 @@ def show_quit_confirmation(app, original_kb):
     # Replace layout and key bindings
     app.layout = Layout(dialog_container)
     app.key_bindings = confirm_kb
+
+def show_save_dialog(app, log_buffer, source_filename=None):
+    """Show a dialog to save current filtered text to a file."""
+    original_layout = app.layout
+    original_key_bindings = app.key_bindings
+    import os
+    # Derive smart default filename
+    default_name = "filtered.log"
+    if source_filename:
+        base = os.path.basename(source_filename)
+        name, ext = os.path.splitext(base)
+        if ext:
+            default_name = f"{name}.filtered{ext}"
+        else:
+            default_name = f"{name}.filtered.log"
+
+    title_control = FormattedTextControl(text=lambda: (
+        "\n  Save filtered view to file\n\n  Enter filename (default: filtered.log) and press Enter\n"
+    ))
+    title_window = Window(content=title_control, height=5)
+
+    input_buffer = Buffer(document=Document(default_name, 0))
+    input_control = BufferControl(buffer=input_buffer, focusable=True)
+    input_window = Window(content=input_control, height=1)
+
+    status_msg = [""]
+    status_control = FormattedTextControl(text=lambda: status_msg[0])
+    status_window = Window(content=status_control, height=1)
+
+    dialog_container = HSplit([
+        Window(height=1),
+        VSplit([
+            Window(width=5),
+            HSplit([
+                title_window,
+                input_window,
+                status_window,
+            ]),
+            Window(width=5),
+        ]),
+    ])
+
+    kb_save = KeyBindings()
+
+    @kb_save.add('enter')
+    def _(event):
+        filename = input_buffer.text.strip() or "filtered.log"
+        try:
+            with open(filename, 'w', encoding='utf-8', errors='replace') as f:
+                f.write(log_buffer.document.text)
+            status_msg[0] = f"Saved to {filename}"
+        except Exception as e:
+            status_msg[0] = f"Error: {e}"
+        app.invalidate()
+        # Close after brief feedback
+        app.layout = original_layout
+        app.key_bindings = original_key_bindings
+        app.invalidate()
+
+    @kb_save.add('escape')
+    @kb_save.add('c-x')
+    def _(event):
+        app.layout = original_layout
+        app.key_bindings = original_key_bindings
+        app.invalidate()
+
+    app.layout = Layout(dialog_container)
+    app.key_bindings = kb_save
+    # Ensure the filename input has focus for typing
+    try:
+        app.layout.focus(input_control)
+    except Exception:
+        # Fallback: focus the input window
+        app.layout.focus(input_window)

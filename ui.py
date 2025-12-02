@@ -65,6 +65,7 @@ def create_bottom_bar():
             ('class:key', 'W/S'), ('class:desc', ' Up/Dn '),
             ('class:key', 'A/D'), ('class:desc', ' Collapse/Expand '),
             ('class:key', 'F'), ('class:desc', ' Filter '),
+            ('class:key', 'S'), ('class:desc', ' Save '),
             ('class:key', 'N'), ('class:desc', ' Next Err '),
             ('class:key', 'P'), ('class:desc', ' Prev Err '),
             ('class:key', '^R'), ('class:desc', ' Clear Filters '),

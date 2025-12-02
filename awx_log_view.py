@@ -71,7 +71,7 @@ def main():
     )
 
     # Create key bindings with dependencies
-    kb = create_key_bindings(log_buffer, manager, update_buffer)
+    kb = create_key_bindings(log_buffer, manager, update_buffer, args.filename)
 
     # Create UI components
     status_bar = create_status_bar(log_buffer, args.filename, manager)
