@@ -70,8 +70,27 @@ def main():
         cursorline=True
     )
 
-    # Create key bindings with dependencies
-    kb = create_key_bindings(log_buffer, manager, update_buffer, args.filename)
+    # Initialize pagination state
+    current_page = 1
+    page_size = 10  # Number of tasks per page
+
+    def update_task_buffer(page):
+        """Update the buffer with tasks for the given page."""
+        nonlocal current_page
+        tasks, total_pages = manager.get_tasks_by_page(page, page_size)
+        if not tasks:
+            return  # Do nothing if the page is invalid
+
+        current_page = page
+        task_text = "\n".join(tasks)
+        update_buffer(task_text, 0)  # Update buffer with tasks
+        logging.debug(f"Task buffer updated to page {current_page}/{total_pages}")
+
+    # Pass current_page as a mutable reference
+    current_page_ref = [current_page]
+
+    # Create key bindings with pagination support
+    kb = create_key_bindings(log_buffer, manager, update_buffer, args.filename, current_page_ref, update_task_buffer)
 
     # Create UI components
     status_bar = create_status_bar(log_buffer, args.filename, manager)
