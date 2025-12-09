@@ -203,14 +203,14 @@ def show_filter_dialog(app, manager, log_buffer, update_buffer_callback):
                 # Add statistics for hosts
                 if cat_idx == 0:  # Hosts category
                     stats = manager.get_host_stats(option)
-                    stats_str = f" (T:{stats['total']} C:{stats['changed']} F:{stats['failed']} U:{stats['unreachable']} S:{stats['skipping']})"
+                    stats_str = f" (T:{stats['total']} C:{stats['changed']} F:{stats['failed']} U:{stats['unreachable']} S:{stats['skipping']} R:{stats['rescued']})"
                     lines.append(f"{cursor}{checkbox} {option}{stats_str}")
                 else:
                     lines.append(f"{cursor}{checkbox} {option}")
         
         lines.append("")
         if cat_idx == 0:  # Show legend for hosts
-            lines.append("Legend: T=Total, C=Changed, F=Failed, U=Unreachable, S=Skipped")
+            lines.append("Legend: T=Total, C=Changed, F=Failed, U=Unreachable, S=Skipped, R=Rescued")
         lines.append("Navigation: UP/DOWN to move, SPACE to toggle, TAB to switch category")
         lines.append("Actions: ENTER to apply, ESC to cancel, C to clear all, A to select all")
         

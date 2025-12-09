@@ -17,7 +17,7 @@ class LogSection:
         self.task_name = None
         if header:
             # Extract task name from header
-            match = re.search(r'(TASK|PLAY|PLAY RECAP)\s*\[(.*?)\]', header)
+            match = re.search(r'(TASK|PLAY|PLAY RECAP|RUNNING HANDLER)\s*\[(.*?)\]', header)
             if match:
                 self.task_name = match.group(2)
 
@@ -47,6 +47,7 @@ class LogManager:
         re_failed = re.compile(r'^(fatal|FAILED)\s*[:-]\s*.*?\[([^\]]+)\]')
         re_unreachable = re.compile(r'^FAILED - UNREACHABLE!\s*\[([^\]]+)\]')
         re_skipping = re.compile(r'^skipping:\s*\[([^\]]+)\]')
+        re_rescued = re.compile(r'^rescued:\s*\[([^\]]+)\]')
         re_recap = re.compile(r'^([a-zA-Z0-9\-._]+)\s*:\s*ok=')
         
         host = None
@@ -61,6 +62,10 @@ class LogManager:
             match = re_failed.search(line)
             host = match.group(2) if match.lastindex >= 2 else None
             status = 'failed'
+        elif re_rescued.search(line):
+            match = re_rescued.search(line)
+            host = match.group(1)
+            status = 'rescued'
         elif re_ok.search(line):
             match = re_ok.search(line)
             host = match.group(1)
@@ -82,7 +87,7 @@ class LogManager:
         
     def _parse(self, content):
         lines = content.splitlines()
-        re_header = re.compile(r'(TASK|PLAY|PLAY RECAP) \[.*\]')
+        re_header = re.compile(r'(TASK|PLAY|PLAY RECAP|RUNNING HANDLER) \[.*\]')
         
         current_header = None
         current_body = []
@@ -98,7 +103,7 @@ class LogManager:
                 # Start new section
                 current_header = line
                 # Extract task name for filtering
-                match = re.search(r'(TASK|PLAY|PLAY RECAP)\s*\[(.*?)\]', line)
+                match = re.search(r'(TASK|PLAY|PLAY RECAP|RUNNING HANDLER)\s*\[(.*?)\]', line)
                 current_task = match.group(2) if match else None
                 current_body = []
             else:
@@ -129,7 +134,8 @@ class LogManager:
             'changed': 0,
             'failed': 0,
             'unreachable': 0,
-            'skipping': 0
+            'skipping': 0,
+            'rescued': 0
         }
         
         for section in self.sections:
@@ -144,10 +150,10 @@ class LogManager:
         return stats
     
     def get_statuses_ordered(self):
-        """Get statuses in preferred order: ok, changed, unreachable, failed, skipping.
+        """Get statuses in preferred order: ok, changed, unreachable, failed, skipping, rescued.
         Returns all standard statuses even if not present in the log."""
         # Always return these in this order
-        return ['ok', 'changed', 'unreachable', 'failed', 'skipping']
+        return ['ok', 'changed', 'unreachable', 'failed', 'skipping', 'rescued']
     
     def set_filters(self, hosts=None, tasks=None, statuses=None):
         """Set active filters. Empty set or None means no filter for that category."""
