@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ansible-logviewer"
+version = "0.1.0"
+description = "A Nano-style AWX/Ansible Log Viewer"
+readme = "README.md"
+requires-python = ">=3.7"
+dependencies = [
+    "prompt_toolkit>=3.0.52",
+]
+license = "MIT"
+authors = [{name = "Raymond Rizzo"}]
+
+[project.scripts]
+ansible-logviewer = "ansible_logviewer.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["."]

@@ -1,3 +1,15 @@
+Metadata-Version: 2.4
+Name: ansible-logviewer
+Version: 0.1.0
+Summary: A Nano-style AWX/Ansible Log Viewer
+Author: Raymond Rizzo
+License-Expression: MIT
+Requires-Python: >=3.7
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: prompt_toolkit>=3.0.52
+Dynamic: license-file
+
 AWX/Ansible Log Viewer (Nano-style)
 
 A fast, keyboard-driven terminal UI for exploring AWX/Ansible logs. It supports multi-select filtering (hosts, tasks, statuses), quick error navigation, and a clean status/bottom bar experience powered by prompt_toolkit.

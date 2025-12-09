@@ -1,0 +1,2 @@
+[console_scripts]
+ansible-logviewer = ansible_logviewer.cli:main

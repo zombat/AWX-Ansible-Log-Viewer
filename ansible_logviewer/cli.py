@@ -9,10 +9,10 @@ from prompt_toolkit.document import Document
 from prompt_toolkit.filters import Condition
 
 # Import custom modules
-from log_manager import LogManager
-from lexer import AnsibleLogLexer
-from ui import style, create_status_bar, create_bottom_bar
-from kb import create_key_bindings
+from .log_manager import LogManager
+from .lexer import AnsibleLogLexer
+from .ui import style, create_status_bar, create_bottom_bar
+from .kb import create_key_bindings
 
 # Configure logging
 logging.basicConfig(filename='debug.log', level=logging.DEBUG, filemode='w', format='%(asctime)s - %(message)s')

@@ -1,10 +1,5 @@
-2025-12-09 17:29:13,330 - Using selector: EpollSelector
-2025-12-09 17:29:15,895 - Search query entered: ok
-2025-12-09 17:29:23,851 - update_buffer called with cursor_idx=0, text length=0
-2025-12-09 17:29:23,851 - Document updated, line_count=1
-2025-12-09 17:29:23,851 - Cursor position calculated: 0
-2025-12-09 17:29:23,851 - Buffer updated successfully: 1 lines, cursor at line 0
-2025-12-09 17:29:29,314 - update_buffer called with cursor_idx=0, text length=25276
-2025-12-09 17:29:29,314 - Document updated, line_count=592
-2025-12-09 17:29:29,314 - Cursor position calculated: 0
-2025-12-09 17:29:29,314 - Buffer updated successfully: 592 lines, cursor at line 0
+2025-12-09 17:41:29,508 - Using selector: EpollSelector
+2025-12-09 17:45:23,580 - update_buffer called with cursor_idx=0, text length=17576
+2025-12-09 17:45:23,582 - Document updated, line_count=582
+2025-12-09 17:45:23,582 - Cursor position calculated: 0
+2025-12-09 17:45:23,582 - Buffer updated successfully: 582 lines, cursor at line 0
