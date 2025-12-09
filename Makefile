@@ -4,13 +4,13 @@ FILE?=example.log
 .PHONY: install run dev clean
 
 install:
-	$(PY) -m pip install -r requirements.txt
+	$(PY) -m pip install -e .
 
 run:
-	$(PY) awx_log_view.py $(FILE)
+	ansible-logviewer $(FILE)
 
 dev:
-	clear && $(PY) awx_log_view.py $(FILE)
+	clear && $(PY) -m ansible_logviewer.cli $(FILE)
 
 clean:
-	rm -rf __pycache__ debug.log .pytest_cache .venv
+	rm -rf __pycache__ debug.log .pytest_cache .venv *.egg-info build dist

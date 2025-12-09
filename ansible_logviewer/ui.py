@@ -10,6 +10,7 @@ style = Style.from_dict({
     'filter': 'bg:#ffff00 #000000 bold',
     
     'log.header': '#00afff bold',
+    'log.handler': '#ff8700 bold',
     'log.error': '#ff0000 bold',
     'log.changed': '#d7ff00',
     'log.success': '#00ff00',

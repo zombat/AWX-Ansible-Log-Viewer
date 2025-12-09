@@ -17,7 +17,7 @@ class LogSection:
         self.task_name = None
         if header:
             # Extract task name from header
-            match = re.search(r'(TASK|PLAY|PLAY RECAP)\s*\[(.*?)\]', header)
+            match = re.search(r'(TASK|PLAY|PLAY RECAP|RUNNING HANDLER)\s*\[(.*?)\]', header)
             if match:
                 self.task_name = match.group(2)
 
@@ -47,6 +47,7 @@ class LogManager:
         re_failed = re.compile(r'^(fatal|FAILED)\s*[:-]\s*.*?\[([^\]]+)\]')
         re_unreachable = re.compile(r'^FAILED - UNREACHABLE!\s*\[([^\]]+)\]')
         re_skipping = re.compile(r'^skipping:\s*\[([^\]]+)\]')
+        re_rescued = re.compile(r'^rescued:\s*\[([^\]]+)\]')
         re_recap = re.compile(r'^([a-zA-Z0-9\-._]+)\s*:\s*ok=')
         
         host = None
@@ -61,6 +62,10 @@ class LogManager:
             match = re_failed.search(line)
             host = match.group(2) if match.lastindex >= 2 else None
             status = 'failed'
+        elif re_rescued.search(line):
+            match = re_rescued.search(line)
+            host = match.group(1)
+            status = 'rescued'
         elif re_ok.search(line):
             match = re_ok.search(line)
             host = match.group(1)
@@ -82,7 +87,7 @@ class LogManager:
         
     def _parse(self, content):
         lines = content.splitlines()
-        re_header = re.compile(r'(TASK|PLAY|PLAY RECAP) \[.*\]')
+        re_header = re.compile(r'(TASK|PLAY|PLAY RECAP|RUNNING HANDLER) \[.*\]')
         
         current_header = None
         current_body = []
@@ -98,7 +103,7 @@ class LogManager:
                 # Start new section
                 current_header = line
                 # Extract task name for filtering
-                match = re.search(r'(TASK|PLAY|PLAY RECAP)\s*\[(.*?)\]', line)
+                match = re.search(r'(TASK|PLAY|PLAY RECAP|RUNNING HANDLER)\s*\[(.*?)\]', line)
                 current_task = match.group(2) if match else None
                 current_body = []
             else:
@@ -129,7 +134,8 @@ class LogManager:
             'changed': 0,
             'failed': 0,
             'unreachable': 0,
-            'skipping': 0
+            'skipping': 0,
+            'rescued': 0
         }
         
         for section in self.sections:
@@ -249,19 +255,43 @@ class LogManager:
         return new_text, new_cursor_idx
 
     def find_next_error(self, current_line_idx):
-        """Find the next rendered line with status failed or unreachable.
+        """Find the next rendered line with status failed or unreachable, or containing 'fatal'.
         Returns the line index, or None if not found."""
+        import re
+        fatal_pattern = re.compile(r'\bfatal\b', re.IGNORECASE)
         for idx in range(current_line_idx + 1, len(self.entry_map)):
             entry = self.entry_map[idx]
-            if entry and entry.status in ('failed', 'unreachable'):
-                return idx
+            if entry:
+                if entry.status in ('failed', 'unreachable'):
+                    return idx
+                if fatal_pattern.search(entry.line):
+                    return idx
         return None
 
     def find_previous_error(self, current_line_idx):
-        """Find the previous rendered line with status failed or unreachable.
+        """Find the previous rendered line with status failed or unreachable, or containing 'fatal'.
         Returns the line index, or None if not found."""
+        import re
+        fatal_pattern = re.compile(r'\bfatal\b', re.IGNORECASE)
         for idx in range(current_line_idx - 1, -1, -1):
             entry = self.entry_map[idx]
-            if entry and entry.status in ('failed', 'unreachable'):
-                return idx
+            if entry:
+                if entry.status in ('failed', 'unreachable'):
+                    return idx
+                if fatal_pattern.search(entry.line):
+                    return idx
         return None
+
+    def get_tasks_by_page(self, page_number, page_size):
+        """Retrieve a subset of tasks for the given page."""
+        tasks = list(self.all_tasks)
+        tasks.sort()  # Optional: Sort tasks alphabetically
+        total_tasks = len(tasks)
+        total_pages = (total_tasks + page_size - 1) // page_size
+
+        if page_number < 1 or page_number > total_pages:
+            return [], total_pages  # Return empty list if page is out of range
+
+        start_index = (page_number - 1) * page_size
+        end_index = min(start_index + page_size, total_tasks)
+        return tasks[start_index:end_index], total_pages

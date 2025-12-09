@@ -7,7 +7,7 @@ from prompt_toolkit.layout.controls import BufferControl, FormattedTextControl
 from prompt_toolkit.layout.containers import Window, HSplit, VSplit
 from prompt_toolkit.layout.layout import Layout
 
-def create_key_bindings(log_buffer, manager, update_buffer_callback, source_filename=None):
+def create_key_bindings(log_buffer, manager, update_buffer_callback, source_filename=None, current_page_ref=None, update_task_buffer=None):
     """Create and configure all key bindings for the application."""
     kb = KeyBindings()
 
@@ -157,6 +157,13 @@ def show_filter_dialog(app, manager, log_buffer, update_buffer_callback):
     current_category = [0]
     # Track cursor position within each category
     cursor_positions = [0, 0, 0]
+    # Track scroll offset for pagination within each category
+    scroll_offsets = [0, 0, 0]
+    
+    # Get terminal height for pagination
+    terminal_height = app.output.get_size().rows
+    # Reserve space for header (3 lines), footer (4 lines), and padding
+    max_visible_items = max(5, terminal_height - 10)
     
     def get_filter_text():
         categories = ['Hosts', 'Tasks', 'Statuses']
@@ -172,25 +179,38 @@ def show_filter_dialog(app, manager, log_buffer, update_buffer_callback):
         options = options_lists[cat_idx]
         selected = selected_lists[cat_idx]
         cursor_pos = cursor_positions[cat_idx]
+        scroll_offset = scroll_offsets[cat_idx]
         
         if not options:
             lines.append("  (No options available)")
         else:
-            for i, option in enumerate(options):
+            total_items = len(options)
+            
+            # Calculate visible range with pagination
+            start_idx = scroll_offset
+            end_idx = min(start_idx + max_visible_items, total_items)
+            
+            # Show pagination indicator if needed
+            if total_items > max_visible_items:
+                lines.append(f"  Showing {start_idx + 1}-{end_idx} of {total_items} (scroll with UP/DOWN)")
+                lines.append("")
+            
+            for i in range(start_idx, end_idx):
+                option = options[i]
                 checkbox = '[X]' if option in selected else '[ ]'
                 cursor = '> ' if i == cursor_pos else '  '
                 
                 # Add statistics for hosts
                 if cat_idx == 0:  # Hosts category
                     stats = manager.get_host_stats(option)
-                    stats_str = f" (T:{stats['total']} C:{stats['changed']} F:{stats['failed']} U:{stats['unreachable']} S:{stats['skipping']})"
+                    stats_str = f" (T:{stats['total']} C:{stats['changed']} F:{stats['failed']} U:{stats['unreachable']} S:{stats['skipping']} R:{stats['rescued']})"
                     lines.append(f"{cursor}{checkbox} {option}{stats_str}")
                 else:
                     lines.append(f"{cursor}{checkbox} {option}")
         
         lines.append("")
         if cat_idx == 0:  # Show legend for hosts
-            lines.append("Legend: T=Total, C=Changed, F=Failed, U=Unreachable, S=Skipped")
+            lines.append("Legend: T=Total, C=Changed, F=Failed, U=Unreachable, S=Skipped, R=Rescued")
         lines.append("Navigation: UP/DOWN to move, SPACE to toggle, TAB to switch category")
         lines.append("Actions: ENTER to apply, ESC to cancel, C to clear all, A to select all")
         
@@ -209,6 +229,12 @@ def show_filter_dialog(app, manager, log_buffer, update_buffer_callback):
         options_lists = [host_options, task_options, status_options]
         if options_lists[cat_idx]:
             cursor_positions[cat_idx] = (cursor_positions[cat_idx] - 1) % len(options_lists[cat_idx])
+            
+            # Adjust scroll offset to keep cursor visible
+            if cursor_positions[cat_idx] < scroll_offsets[cat_idx]:
+                scroll_offsets[cat_idx] = cursor_positions[cat_idx]
+            elif cursor_positions[cat_idx] >= scroll_offsets[cat_idx] + max_visible_items:
+                scroll_offsets[cat_idx] = cursor_positions[cat_idx] - max_visible_items + 1
         event.app.invalidate()
     
     @filter_kb.add('down')
@@ -217,6 +243,12 @@ def show_filter_dialog(app, manager, log_buffer, update_buffer_callback):
         options_lists = [host_options, task_options, status_options]
         if options_lists[cat_idx]:
             cursor_positions[cat_idx] = (cursor_positions[cat_idx] + 1) % len(options_lists[cat_idx])
+            
+            # Adjust scroll offset to keep cursor visible
+            if cursor_positions[cat_idx] < scroll_offsets[cat_idx]:
+                scroll_offsets[cat_idx] = cursor_positions[cat_idx]
+            elif cursor_positions[cat_idx] >= scroll_offsets[cat_idx] + max_visible_items:
+                scroll_offsets[cat_idx] = cursor_positions[cat_idx] - max_visible_items + 1
         event.app.invalidate()
     
     @filter_kb.add('tab')
