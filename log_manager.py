@@ -150,10 +150,10 @@ class LogManager:
         return stats
     
     def get_statuses_ordered(self):
-        """Get statuses in preferred order: ok, changed, unreachable, failed, skipping, rescued.
+        """Get statuses in preferred order: ok, changed, unreachable, failed, skipping.
         Returns all standard statuses even if not present in the log."""
         # Always return these in this order
-        return ['ok', 'changed', 'unreachable', 'failed', 'skipping', 'rescued']
+        return ['ok', 'changed', 'unreachable', 'failed', 'skipping']
     
     def set_filters(self, hosts=None, tasks=None, statuses=None):
         """Set active filters. Empty set or None means no filter for that category."""
