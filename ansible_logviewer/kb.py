@@ -1,14 +1,50 @@
+"""
+Key bindings for the Ansible Log Viewer application.
+
+This module defines all key bindings used in the application, including
+navigation, filtering, copying, and quitting actions.
+"""
+
 import base64
 import logging
+import os
+from typing import Callable, Optional, Any
 from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.buffer import Buffer
 from prompt_toolkit.document import Document
 from prompt_toolkit.layout.controls import BufferControl, FormattedTextControl
 from prompt_toolkit.layout.containers import Window, HSplit, VSplit
 from prompt_toolkit.layout.layout import Layout
+from prompt_toolkit.layout.controls import FormattedTextControl
+from prompt_toolkit.layout.containers import Window, HSplit, VSplit
+from prompt_toolkit.layout.layout import Layout
+from prompt_toolkit.key_binding import KeyBindings
+from prompt_toolkit.layout.controls import FormattedTextControl
+from prompt_toolkit.layout.containers import Window, HSplit, VSplit
+from prompt_toolkit.layout.layout import Layout
+from prompt_toolkit.key_binding import KeyBindings
+from prompt_toolkit.widgets import Box
 
-def create_key_bindings(log_buffer, manager, update_buffer_callback, source_filename=None, current_page_ref=None, update_task_buffer=None):
-    """Create and configure all key bindings for the application."""
+
+def create_key_bindings(log_buffer: Buffer, manager,
+                update_buffer_callback: Callable[..., Any],
+                source_filename: Optional[str] = None,
+                current_page_ref: Optional[int] = None,
+                update_task_buffer: Optional[Callable[..., Any]] = None) -> KeyBindings:
+    """
+    Create and configure all key bindings for the application.
+    
+    Args:
+        log_buffer (Buffer): The main log buffer.
+        manager: The log manager handling log data and state.
+        update_buffer_callback (Callable): Function to update the log buffer.
+        source_filename (Optional[str]): The source log filename.
+        current_page_ref (Optional[int]): Reference to the current page number.
+        update_task_buffer (Optional[Callable]): Function to update the task buffer.
+
+    Returns:
+        KeyBindings: Configured key bindings for the application.
+    """
     kb = KeyBindings()
 
     @kb.add('c-c')
@@ -17,17 +53,17 @@ def create_key_bindings(log_buffer, manager, update_buffer_callback, source_file
         buff = event.app.current_buffer
         if buff.selection_state:
             # Copy to internal clipboard
-            data = buff.copy_selection() 
+            data = buff.copy_selection()
             text = data.text
-            
+
             # Try to copy to system clipboard using OSC 52
             try:
                 encoded = base64.b64encode(text.encode('utf-8')).decode('utf-8')
                 event.app.output.write_raw(f"\x1b]52;c;{encoded}\x07")
                 event.app.output.flush()
             except Exception as e:
-                logging.error(f"Failed to copy: {e}")
-                
+                logging.error("Failed to copy: %s", e)
+
             # Clear selection
             buff.selection_state = None
         else:
@@ -37,7 +73,7 @@ def create_key_bindings(log_buffer, manager, update_buffer_callback, source_file
     def _(event):
         "Quit application."
         event.app.exit()
-    
+
     @kb.add('q')
     def _(event):
         "Quit application with confirmation."
@@ -70,14 +106,16 @@ def create_key_bindings(log_buffer, manager, update_buffer_callback, source_file
     def _(event):
         "Collapse current section"
         current_line = log_buffer.document.cursor_position_row
-        logging.debug(f"Collapse requested at line {current_line}")
+        logging.debug("Collapse requested at line %d", current_line)
         res = manager.toggle_section(current_line, collapse=True)
-        logging.debug(f"toggle_section returned: {type(res)} = {res if not isinstance(res, tuple) else (res[1], len(res[0]))}")
+        logging.debug("toggle_section returned: %s = %s", type(res),
+                      res if not isinstance(res, tuple) else (res[1], len(res[0])))
         if isinstance(res, tuple):
             logging.debug("Calling update_buffer...")
             update_buffer_callback(*res)
             event.app.invalidate()
-            logging.debug(f"Buffer updated and invalidated, new line count: {log_buffer.document.line_count}")
+            logging.debug("Buffer updated and invalidated, new line count: %d",
+                          log_buffer.document.line_count)
 
     @kb.add('d')
     @kb.add('right')
@@ -85,14 +123,16 @@ def create_key_bindings(log_buffer, manager, update_buffer_callback, source_file
     def _(event):
         "Expand current section"
         current_line = log_buffer.document.cursor_position_row
-        logging.debug(f"Expand requested at line {current_line}")
+        logging.debug("Expand requested at line %d", current_line)
         res = manager.toggle_section(current_line, collapse=False)
-        logging.debug(f"toggle_section returned: {type(res)} = {res if not isinstance(res, tuple) else (res[1], len(res[0]))}")
+        logging.debug("toggle_section returned: %s = %s",
+                      type(res), res if not isinstance(res, tuple) else (res[1], len(res[0])))
         if isinstance(res, tuple):
             logging.debug("Calling update_buffer...")
             update_buffer_callback(*res)
             event.app.invalidate()
-            logging.debug(f"Buffer updated and invalidated, new line count: {log_buffer.document.line_count}")
+            logging.debug("Buffer updated and invalidated, new line count: %d",
+                          log_buffer.document.line_count)
 
     @kb.add('f')
     def _(event):
@@ -137,135 +177,139 @@ def create_key_bindings(log_buffer, manager, update_buffer_callback, source_file
 
 def show_filter_dialog(app, manager, log_buffer, update_buffer_callback):
     """Show a dialog to set filters with multi-select support."""
-    from prompt_toolkit.layout.controls import FormattedTextControl
-    from prompt_toolkit.layout.containers import Window, HSplit, VSplit
-    from prompt_toolkit.layout.layout import Layout
-    from prompt_toolkit.key_binding import KeyBindings
-    from prompt_toolkit.widgets import Box
-    
     # Build filter options
     host_options = sorted(manager.all_hosts)
     task_options = sorted(manager.all_tasks)
     status_options = manager.get_statuses_ordered()  # Use ordered statuses
-    
+
     # Track selected items (copy current filters)
     selected_hosts = set(manager.filter_hosts)
     selected_tasks = set(manager.filter_tasks)
     selected_statuses = set(manager.filter_statuses)
-    
+
     # Track which category we're viewing: 0=hosts, 1=tasks, 2=statuses
     current_category = [0]
     # Track cursor position within each category
     cursor_positions = [0, 0, 0]
     # Track scroll offset for pagination within each category
     scroll_offsets = [0, 0, 0]
-    
+
     # Get terminal height for pagination
     terminal_height = app.output.get_size().rows
     # Reserve space for header (3 lines), footer (4 lines), and padding
     max_visible_items = max(5, terminal_height - 10)
-    
+
     def get_filter_text():
         categories = ['Hosts', 'Tasks', 'Statuses']
         options_lists = [host_options, task_options, status_options]
         selected_lists = [selected_hosts, selected_tasks, selected_statuses]
-        
+
         cat_idx = current_category[0]
         lines = []
         lines.append(f"Filter by {categories[cat_idx]} (Press TAB to switch categories)")
         lines.append("="* 70)
         lines.append("")
-        
+
         options = options_lists[cat_idx]
         selected = selected_lists[cat_idx]
         cursor_pos = cursor_positions[cat_idx]
         scroll_offset = scroll_offsets[cat_idx]
-        
+
         if not options:
             lines.append("  (No options available)")
         else:
             total_items = len(options)
-            
+
             # Calculate visible range with pagination
             start_idx = scroll_offset
             end_idx = min(start_idx + max_visible_items, total_items)
-            
+
             # Show pagination indicator if needed
             if total_items > max_visible_items:
-                lines.append(f"  Showing {start_idx + 1}-{end_idx} of {total_items} (scroll with UP/DOWN)")
+                lines.append(
+                    f"  Showing {start_idx + 1}-{end_idx} of {total_items} "
+                    "(scroll with UP/DOWN)"
+                )
                 lines.append("")
-            
+
             for i in range(start_idx, end_idx):
                 option = options[i]
                 checkbox = '[X]' if option in selected else '[ ]'
                 cursor = '> ' if i == cursor_pos else '  '
-                
+
                 # Add statistics for hosts
                 if cat_idx == 0:  # Hosts category
                     stats = manager.get_host_stats(option)
-                    stats_str = f" (T:{stats['total']} C:{stats['changed']} F:{stats['failed']} U:{stats['unreachable']} S:{stats['skipping']} R:{stats['rescued']})"
+                    stats_str = (
+                        f" (T:{stats['total']} C:{stats['changed']} "
+                        f"F:{stats['failed']} U:{stats['unreachable']} "
+                        f"S:{stats['skipping']} R:{stats['rescued']})"
+                    )
                     lines.append(f"{cursor}{checkbox} {option}{stats_str}")
                 else:
                     lines.append(f"{cursor}{checkbox} {option}")
-        
+
         lines.append("")
         if cat_idx == 0:  # Show legend for hosts
-            lines.append("Legend: T=Total, C=Changed, F=Failed, U=Unreachable, S=Skipped, R=Rescued")
+            lines.append("Legend: T=Total, C=Changed, F=Failed, U=Unreachable, "
+                        "S=Skipped, R=Rescued")
         lines.append("Navigation: UP/DOWN to move, SPACE to toggle, TAB to switch category")
         lines.append("Actions: ENTER to apply, ESC to cancel, C to clear all, A to select all")
-        
+
         return '\n'.join(lines)
-    
+
     # Store original layout and key bindings
     original_layout = app.layout
     original_key_bindings = app.key_bindings
-    
+
     # Create filter dialog key bindings
     filter_kb = KeyBindings()
-    
+
     @filter_kb.add('up')
     def _(event):
         cat_idx = current_category[0]
         options_lists = [host_options, task_options, status_options]
         if options_lists[cat_idx]:
-            cursor_positions[cat_idx] = (cursor_positions[cat_idx] - 1) % len(options_lists[cat_idx])
-            
+            cursor_positions[cat_idx] = (cursor_positions[cat_idx]
+                                         - 1) % len(options_lists[cat_idx])
+
             # Adjust scroll offset to keep cursor visible
             if cursor_positions[cat_idx] < scroll_offsets[cat_idx]:
                 scroll_offsets[cat_idx] = cursor_positions[cat_idx]
             elif cursor_positions[cat_idx] >= scroll_offsets[cat_idx] + max_visible_items:
                 scroll_offsets[cat_idx] = cursor_positions[cat_idx] - max_visible_items + 1
         event.app.invalidate()
-    
+
     @filter_kb.add('down')
     def _(event):
         cat_idx = current_category[0]
         options_lists = [host_options, task_options, status_options]
         if options_lists[cat_idx]:
-            cursor_positions[cat_idx] = (cursor_positions[cat_idx] + 1) % len(options_lists[cat_idx])
-            
+            cursor_positions[cat_idx] = (cursor_positions[cat_idx]
+                                         + 1) % len(options_lists[cat_idx])
+
             # Adjust scroll offset to keep cursor visible
             if cursor_positions[cat_idx] < scroll_offsets[cat_idx]:
                 scroll_offsets[cat_idx] = cursor_positions[cat_idx]
             elif cursor_positions[cat_idx] >= scroll_offsets[cat_idx] + max_visible_items:
                 scroll_offsets[cat_idx] = cursor_positions[cat_idx] - max_visible_items + 1
         event.app.invalidate()
-    
+
     @filter_kb.add('tab')
     def _(event):
         current_category[0] = (current_category[0] + 1) % 3
         event.app.invalidate()
-    
+
     @filter_kb.add('space')
     def _(event):
         cat_idx = current_category[0]
         options_lists = [host_options, task_options, status_options]
         selected_lists = [selected_hosts, selected_tasks, selected_statuses]
-        
+
         options = options_lists[cat_idx]
         selected = selected_lists[cat_idx]
         cursor_pos = cursor_positions[cat_idx]
-        
+
         if options:
             item = options[cursor_pos]
             if item in selected:
@@ -273,17 +317,17 @@ def show_filter_dialog(app, manager, log_buffer, update_buffer_callback):
             else:
                 selected.add(item)
         event.app.invalidate()
-    
+
     @filter_kb.add('a')
     def _(event):
         cat_idx = current_category[0]
         options_lists = [host_options, task_options, status_options]
         selected_lists = [selected_hosts, selected_tasks, selected_statuses]
-        
+
         # Select all in current category
         selected_lists[cat_idx].update(options_lists[cat_idx])
         event.app.invalidate()
-    
+
     @filter_kb.add('c')
     def _(event):
         # Clear all in current category
@@ -291,7 +335,7 @@ def show_filter_dialog(app, manager, log_buffer, update_buffer_callback):
         selected_lists = [selected_hosts, selected_tasks, selected_statuses]
         selected_lists[cat_idx].clear()
         event.app.invalidate()
-    
+
     @filter_kb.add('enter')
     def _(event):
         # Apply filters
@@ -302,12 +346,12 @@ def show_filter_dialog(app, manager, log_buffer, update_buffer_callback):
         )
         new_text = manager.render()
         update_buffer_callback(new_text, 0)
-        
+
         # Restore original layout and key bindings
         app.layout = original_layout
         app.key_bindings = original_key_bindings
         app.invalidate()
-    
+
     @filter_kb.add('escape')
     @filter_kb.add('c-x')
     def _(event):
@@ -315,11 +359,11 @@ def show_filter_dialog(app, manager, log_buffer, update_buffer_callback):
         app.layout = original_layout
         app.key_bindings = original_key_bindings
         app.invalidate()
-    
+
     # Create filter dialog layout
     filter_control = FormattedTextControl(text=get_filter_text)
     filter_window = Window(content=filter_control)
-    
+
     # Create a simple centered dialog
     dialog_container = HSplit([
         Window(height=1),  # Top spacer
@@ -329,21 +373,16 @@ def show_filter_dialog(app, manager, log_buffer, update_buffer_callback):
             Window(width=5),  # Right spacer
         ]),
     ])
-    
+
     # Replace layout and key bindings
     app.layout = Layout(dialog_container)
     app.key_bindings = filter_kb
 
 def show_quit_confirmation(app, original_kb):
     """Show a confirmation dialog before quitting."""
-    from prompt_toolkit.layout.controls import FormattedTextControl
-    from prompt_toolkit.layout.containers import Window, HSplit, VSplit
-    from prompt_toolkit.layout.layout import Layout
-    from prompt_toolkit.key_binding import KeyBindings
-    
     # Store original layout and key bindings
     original_layout = app.layout
-    
+
     def get_confirm_text():
         return (
             "\n"
@@ -351,15 +390,15 @@ def show_quit_confirmation(app, original_kb):
             "\n"
             "  Press Y to quit, N or ESC to cancel\n"
         )
-    
+
     # Create confirmation dialog key bindings
     confirm_kb = KeyBindings()
-    
+
     @confirm_kb.add('y')
     @confirm_kb.add('Y')
     def _(event):
         event.app.exit()
-    
+
     @confirm_kb.add('n')
     @confirm_kb.add('N')
     @confirm_kb.add('escape')
@@ -368,11 +407,11 @@ def show_quit_confirmation(app, original_kb):
         app.layout = original_layout
         app.key_bindings = original_kb
         app.invalidate()
-    
+
     # Create confirmation dialog layout
     confirm_control = FormattedTextControl(text=get_confirm_text)
     confirm_window = Window(content=confirm_control, height=6)
-    
+
     dialog_container = HSplit([
         Window(height=10),  # Top spacer
         VSplit([
@@ -388,7 +427,7 @@ def show_quit_confirmation(app, original_kb):
             Window(content=FormattedTextControl(text=lambda: "=" * 50), height=1),
         ]),
     ])
-    
+
     # Replace layout and key bindings
     app.layout = Layout(dialog_container)
     app.key_bindings = confirm_kb
@@ -397,7 +436,6 @@ def show_save_dialog(app, log_buffer, source_filename=None):
     """Show a dialog to save current filtered text to a file."""
     original_layout = app.layout
     original_key_bindings = app.key_bindings
-    import os
     # Derive smart default filename
     default_name = "filtered.log"
     if source_filename:
@@ -409,7 +447,8 @@ def show_save_dialog(app, log_buffer, source_filename=None):
             default_name = f"{name}.filtered.log"
 
     title_control = FormattedTextControl(text=lambda: (
-        "\n  Save filtered view to file\n\n  Enter filename (default: filtered.log) and press Enter\n"
+        "\n  Save filtered view to file\n\n"
+        "  Enter filename (default: filtered.log) and press Enter\n"
     ))
     title_window = Window(content=title_control, height=5)
 

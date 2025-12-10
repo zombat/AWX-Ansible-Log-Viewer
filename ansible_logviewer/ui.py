@@ -1,14 +1,22 @@
+"""
+UI components for the Ansible Log Viewer application.
+
+This module defines the styles and layout components such as status bar
+and bottom bar for the log viewer interface.
+"""
+
+from typing_extensions import Buffer
 from prompt_toolkit.styles import Style
 from prompt_toolkit.layout.containers import Window
 from prompt_toolkit.layout.controls import FormattedTextControl
 
 style = Style.from_dict({
     'status': 'bg:#ffffff #000000',
-    'bottom-bar': 'bg:#ffffff #000000', 
+    'bottom-bar': 'bg:#ffffff #000000',
     'key': 'bg:#ffffff #000000 bold',
     'desc': 'bg:#ffffff #000000',
     'filter': 'bg:#ffff00 #000000 bold',
-    
+
     'log.header': '#00afff bold',
     'log.handler': '#ff8700 bold',
     'log.error': '#ff0000 bold',
@@ -18,16 +26,27 @@ style = Style.from_dict({
     'log.normal': '#cccccc',
 })
 
-def create_status_bar(log_buffer, filename, manager):
-    """Create the status bar showing file info, cursor position, and filters."""
+def create_status_bar(log_buffer: Buffer, filename: str, manager: object) -> Window:
+    """
+    Create the status bar showing file info, cursor position, and filters.
+    
+    Args:
+        log_buffer (Buffer): The log buffer to get cursor position and line count.
+        filename (str): The name of the log file being viewed.
+        manager (object): The filter manager containing active filters.
+
+    Returns:
+        Window: A prompt_toolkit Window object representing the status bar.
+    """
+
     def get_status_bar_text():
         row = log_buffer.document.cursor_position_row + 1
         total = log_buffer.document.line_count
-        
+
         parts = [
             ('class:status', f"  AWX Viewer 1.0  File: {filename}  "),
         ]
-        
+
         # Show active filters
         filters = []
         if manager.filter_hosts:
@@ -43,23 +62,33 @@ def create_status_bar(log_buffer, filename, manager):
         if manager.filter_statuses:
             status_list = ', '.join(sorted(manager.filter_statuses))
             filters.append(f"Status:[{status_list}]")
-        
+
         if filters:
             parts.append(('class:filter', f" {' | '.join(filters)} "))
-        
+
         parts.append(('class:status', f"Line: {row}/{total}".rjust(20)))
-        
+
         return parts
-    
+
     return Window(
         content=FormattedTextControl(get_status_bar_text),
         height=1,
         style='class:status'
     )
 
-def create_bottom_bar():
-    """Create the bottom bar with key binding help."""
+def create_bottom_bar() -> Window:
+    """
+    Create the bottom bar with key binding help.
+    
+    Returns:
+        Window: A prompt_toolkit Window object representing the bottom bar.
+    """
+
     def get_bottom_bar():
+        """
+        Return the formatted text for the bottom bar key bindings.
+        """
+
         return [
             ('class:key', 'Q'), ('class:desc', ' Exit '),
             ('class:key', '^C'), ('class:desc', ' Copy/Exit '),
@@ -71,7 +100,7 @@ def create_bottom_bar():
             ('class:key', 'P'), ('class:desc', ' Prev Err '),
             ('class:key', '^R'), ('class:desc', ' Clear Filters '),
         ]
-    
+
     return Window(
         content=FormattedTextControl(get_bottom_bar),
         height=1,
