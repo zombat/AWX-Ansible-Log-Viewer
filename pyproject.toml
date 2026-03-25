@@ -4,18 +4,39 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ansible-logviewer"
-version = "0.1.0"
-description = "A Nano-style AWX/Ansible Log Viewer"
+version = "1.0.1"
+description = "A fast, keyboard-driven terminal UI for exploring AWX/Ansible logs with multi-select filtering, error navigation, and collapsible sections."
 readme = "README.md"
-requires-python = ">=3.7"
+requires-python = ">=3.10"
 dependencies = [
     "prompt_toolkit>=3.0.52",
 ]
 license = "MIT"
 authors = [{name = "Raymond Rizzo"}]
+keywords = ["ansible", "awx", "ascender", "cli", "devops", "automation", "log-analysis", "log-viewer", "logging", "log-management", "ansible-tower"]
+classifiers = [
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Intended Audience :: System Administrators",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: System :: Logging",
+    "Topic :: Terminals",
+    "Topic :: Utilities",
+]
+
+[project.urls]
+Homepage = "https://raymondrizzo.com"
+Repository = "https://github.com/zombat/AWX-Ansible-Log-Viewer"
+"Buy Me a Coffee" = "https://buymeacoffee.com/raymondandrewrizzo"
 
 [project.scripts]
 ansible-logviewer = "ansible_logviewer.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["."]
+exclude = ["build*", "reports*"]

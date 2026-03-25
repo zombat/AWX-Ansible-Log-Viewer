@@ -1,6 +1,8 @@
-AWX/Ansible Log Viewer (Nano-style)
+AWX/Ansible Log Viewer
 
 A fast, keyboard-driven terminal UI for exploring AWX/Ansible logs. It supports multi-select filtering (hosts, tasks, statuses), quick error navigation, and a clean status/bottom bar experience powered by prompt_toolkit.
+
+[![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-support-yellow)](https://buymeacoffee.com/raymondandrewrizzo)
 
 Features
 - Multi-select filters: choose multiple hosts, tasks, and statuses at once.
@@ -17,15 +19,20 @@ Requirements
 
 Install
 ```bash
+# Install from PyPI
+pip install ansible-logviewer
+
+# Run
+ansible-logviewer path/to/logfile.log
+```
+
+Or install from source:
+```bash
 # (optional) create a virtualenv
 python3 -m venv .venv
 source .venv/bin/activate
 
-# Install via pip
 pip install .
-
-# Run
-ansible-logviewer path/to/logfile.log
 ```
 
 Key Bindings
@@ -52,6 +59,11 @@ Notes
 - Status list is always shown in order: ok, changed, unreachable, failed, skipping (even if some don’t appear in the current file).
 - Error navigation respects active filters and collapsed state (errors in collapsed sections won’t appear in the rendered body until expanded).
 
+Options
+- `--highlight-style underline|color|both`: Style for search match highlights (default: underline)
+- `--search-mode keyword|regex|both`: Search mode (default: both)
+- `--debug`: Write debug output to `debug.log` in the current directory
+
 Troubleshooting
 - If Ctrl+X doesn’t work in your terminal, use Q (with prompt) to exit.
 - If copying via Ctrl+C doesn’t reach the system clipboard, your terminal may not support OSC 52; the text is still copied internally.
@@ -65,6 +77,7 @@ Project Structure
 
 Contributing
 - PRs welcome; please keep changes minimal and aligned with the existing coding style.
+- GitHub: [zombat/AWX-Ansible-Log-Viewer](https://github.com/zombat/AWX-Ansible-Log-Viewer)
 
 ## License
 
