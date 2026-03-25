@@ -1,18 +1,35 @@
 Metadata-Version: 2.4
 Name: ansible-logviewer
-Version: 0.1.0
-Summary: A Nano-style AWX/Ansible Log Viewer
+Version: 1.0.1
+Summary: A fast, keyboard-driven terminal UI for exploring AWX/Ansible logs with multi-select filtering, error navigation, and collapsible sections.
 Author: Raymond Rizzo
 License-Expression: MIT
-Requires-Python: >=3.7
+Project-URL: Homepage, https://raymondrizzo.com
+Project-URL: Repository, https://github.com/zombat/AWX-Ansible-Log-Viewer
+Project-URL: Buy Me a Coffee, https://buymeacoffee.com/raymondandrewrizzo
+Keywords: ansible,awx,ascender,cli,devops,automation,log-analysis,log-viewer,logging,log-management,ansible-tower
+Classifier: Environment :: Console
+Classifier: Intended Audience :: Developers
+Classifier: Intended Audience :: System Administrators
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Topic :: System :: Logging
+Classifier: Topic :: Terminals
+Classifier: Topic :: Utilities
+Requires-Python: >=3.10
 Description-Content-Type: text/markdown
 License-File: LICENSE
 Requires-Dist: prompt_toolkit>=3.0.52
 Dynamic: license-file
 
-AWX/Ansible Log Viewer (Nano-style)
+AWX/Ansible Log Viewer
 
 A fast, keyboard-driven terminal UI for exploring AWX/Ansible logs. It supports multi-select filtering (hosts, tasks, statuses), quick error navigation, and a clean status/bottom bar experience powered by prompt_toolkit.
+
+[![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-support-yellow)](https://buymeacoffee.com/raymondandrewrizzo)
 
 Features
 - Multi-select filters: choose multiple hosts, tasks, and statuses at once.
@@ -29,15 +46,20 @@ Requirements
 
 Install
 ```bash
+# Install from PyPI
+pip install ansible-logviewer
+
+# Run
+ansible-logviewer path/to/logfile.log
+```
+
+Or install from source:
+```bash
 # (optional) create a virtualenv
 python3 -m venv .venv
 source .venv/bin/activate
 
-# Install via pip
 pip install .
-
-# Run
-ansible-logviewer path/to/logfile.log
 ```
 
 Key Bindings
@@ -64,6 +86,11 @@ Notes
 - Status list is always shown in order: ok, changed, unreachable, failed, skipping (even if some don’t appear in the current file).
 - Error navigation respects active filters and collapsed state (errors in collapsed sections won’t appear in the rendered body until expanded).
 
+Options
+- `--highlight-style underline|color|both`: Style for search match highlights (default: underline)
+- `--search-mode keyword|regex|both`: Search mode (default: both)
+- `--debug`: Write debug output to `debug.log` in the current directory
+
 Troubleshooting
 - If Ctrl+X doesn’t work in your terminal, use Q (with prompt) to exit.
 - If copying via Ctrl+C doesn’t reach the system clipboard, your terminal may not support OSC 52; the text is still copied internally.
@@ -77,6 +104,7 @@ Project Structure
 
 Contributing
 - PRs welcome; please keep changes minimal and aligned with the existing coding style.
+- GitHub: [zombat/AWX-Ansible-Log-Viewer](https://github.com/zombat/AWX-Ansible-Log-Viewer)
 
 ## License
 
