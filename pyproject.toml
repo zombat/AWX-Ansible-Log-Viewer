@@ -12,7 +12,7 @@ dependencies = [
     "prompt_toolkit>=3.0.52",
 ]
 license = "MIT"
-authors = [{name = "Raymond Rizzo"}]
+authors = [{name = "Raymond Andrew Rizzo"}]
 keywords = ["ansible", "awx", "ascender", "cli", "devops", "automation", "log-analysis", "log-viewer", "logging", "log-management", "ansible-tower"]
 classifiers = [
     "Environment :: Console",
